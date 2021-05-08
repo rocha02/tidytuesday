@@ -80,12 +80,12 @@ p <- ggplot(countries) +
   geom_sf_label(aes(label = sovereignt), label.padding = unit(1, "mm"))+
   geom_point(data = water_data, aes(x = lon_deg, y = lat_deg, color=water_tech),size=2, alpha=.5)+
   scale_color_manual(values = pal)+
-  labs(title = 'Water access points in Central America - {current_frame}', 
+  labs(title = 'Water access points in El Salvador, Honduras & Nicaragua - {current_frame}',
        caption  = "Data Source: Tidy Tuesday & Water Point Data Exchange | Plot by Rafael Rocha")+
   theme_void()+
   theme(
       legend.title = element_blank(),
-      plot.title = element_text(family = "Lato", size = 22, face = "bold"),
+      plot.title = element_text(family = "Lato", size = 17, face = "bold",hjust = 0.5),
       legend.position = "bottom",
       legend.text = element_text(size = 16),
       plot.margin=unit(c(0,1,1,1),"cm")) +
@@ -106,4 +106,4 @@ animate(p,duration=20 ,
 
 # Save animation
 
-anim_save(filename = paste0("Water_system",Sys.Date(),".gif"),animation = last_animation())
+anim_save(filename = paste0("Water_access",Sys.Date(),".gif"),animation = last_animation())
