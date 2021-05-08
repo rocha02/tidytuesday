@@ -2,16 +2,12 @@ library(tidytuesdayR)
 library(tidyverse)
 library(dplyr)
 library(ggplot2)
-library(sf)
+#library(sf)
+library(gganimate)
 library(rnaturalearth)
 
-# Get the data
+# Get the data and filter latin america countries 
 
-tuesdata <- tidytuesdayR::tt_load(2021, week = 19)
-
-water <- tuesdata$water
-
-# Filter latin america countries 
 
 raw_df <- read_csv("2021/week 19/Water_Point_Data_Exchange__WPDx-Basic_.csv")
 
@@ -51,15 +47,81 @@ clean_df %>%
 
 water_la <- read_rds("2021/week 19/water_la.rds")
 
-lista <- water_la %>% 
-  count(water_source, country_name) 
+water <- water_la %>% 
+  filter(country_name == c("El Salvador", "Mexico","Honduras", "Nicaragua")) 
 
+water %>% 
+  group_by(country_name, water_tech, install_year) %>%
+  summarise(n = n())
 
-central_paises <- 
-  ne_countries(country = c("El Salvador", "Mexico","Honduras", "Nicaragua"), 
+countries <- 
+  ne_countries(country = c("El Salvador","Honduras", "Nicaragua"), 
                scale = "large", returnclass = "sf") 
 
-central_estados <- 
-  ne_states(iso_a2 = c("NI", "SV", "HN", "MX"), returnclass = "sf") 
+central_states <- 
+  ne_states(iso_a2 = c("NI", "SV", "HN"), returnclass = "sf") 
+  
+# Plot
+
+ghibli_pal <- ghibli::ghibli_palette("PonyoMedium", type = "discrete")[c(2:3, 5:7)]
+
+
+water_ca <- water_la %>% 
+  filter(country_name == c("El Salvador","Honduras", "Nicaragua")) %>% 
+  mutate(water_tech = replace(water_tech, str_detect(water_tech, "Hand Pump"), "Hand Pump")) %>%
+  mutate(water_tech = replace(water_tech, str_detect(water_tech, "NA"), "Not identified")) %>%
+  mutate(water_tech = replace(water_tech, str_detect(water_tech, "Mechanized Pump"), "Mechanized Pump"))
+
+p <- ggplot(central_paises) +
+  geom_sf(fill = "gray")+
+  geom_point(data = water, aes(x = lon_deg, y = lat_deg, color=water_tech),alpha=.5)+
+  scale_fill_manual(values = ghibli_pal, na.value = "lightgray") +
+  theme(axis.line = element_blank(),
+        plot.subtitle = element_text(face="bold", size=15),
+        plot.caption = element_text(face = "italic", size = 6, color = "grey"),
+        axis.text = element_blank(),
+        panel.grid = element_blank(),
+        legend.title = element_blank(),
+        panel.background = element_rect(fill = "transparent"),
+        legend.position = c(0.16, 0.19), 
+        #legend.title = element_text(size = 12),
+        #legend.text = element_text(size = 11),
+        text = element_text(family = "CMU Sans Serif"),
+        plot.title = element_text(size = 24))+
+  transition_manual(water_ca$install_year, cumulative = TRUE)
+
+
+
+  labs(fill = "Primary system by state", 
+       title = "Water Transportation Systems",
+       subtitle = "How does water get from its source to the point of collection?",
+       caption = "Data: Water Point Data Exchange") +
+  theme(panel.background = element_rect(fill = "transparent"),
+        legend.position = c(0.16, 0.19), 
+        #legend.title = element_text(size = 12),
+        #legend.text = element_text(size = 11),
+        text = element_text(family = "CMU Sans Serif"),
+        plot.title = element_text(size = 24))
+
+p
+
+
++
+  transition_time(install_year)
+
+water_ca$install_year <- as.numeric(water_ca$install_year)
+
+
+
+
+ggplot(gapminder, aes(gdpPercap, lifeExp, size = pop, colour = country)) +
+  geom_point(alpha = 0.7) +
+  scale_colour_manual(values = country_colors) +
+  scale_size(range = c(2, 12)) +
+  scale_x_log10() +
+  facet_wrap(~continent) +
+  theme(legend.position = 'none') +
+  labs(title = 'Year: {frame_time}', x = 'GDP per capita', y = 'life expectancy') +
+  transition_time(year)
 
 
