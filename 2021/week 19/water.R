@@ -2,7 +2,7 @@ library(tidytuesdayR)
 library(tidyverse)
 library(dplyr)
 library(ggplot2)
-#library(sf)
+library(sf)
 library(gganimate)
 library(rnaturalearth)
 
@@ -45,83 +45,65 @@ clean_df %>%
 
 # Check the data
 
-water_la <- read_rds("2021/week 19/water_la.rds")
+water <- read_rds("2021/week 19/water_la.rds") %>% 
+  filter(country_name == c("El Salvador","Honduras", "Nicaragua"))   #selected countries from latin america
 
-water <- water_la %>% 
-  filter(country_name == c("El Salvador", "Mexico","Honduras", "Nicaragua")) 
-
-water %>% 
+list <- water %>% 
   group_by(country_name, water_tech, install_year) %>%
   summarise(n = n())
+
+# Get the map data 
 
 countries <- 
   ne_countries(country = c("El Salvador","Honduras", "Nicaragua"), 
                scale = "large", returnclass = "sf") 
 
-central_states <- 
-  ne_states(iso_a2 = c("NI", "SV", "HN"), returnclass = "sf") 
-  
-# Plot
+# Edit water tech and coordinates
 
-ghibli_pal <- ghibli::ghibli_palette("PonyoMedium", type = "discrete")[c(2:3, 5:7)]
-
-
-water_ca <- water_la %>% 
-  filter(country_name == c("El Salvador","Honduras", "Nicaragua")) %>% 
-  mutate(water_tech = replace(water_tech, str_detect(water_tech, "Hand Pump"), "Hand Pump")) %>%
-  mutate(water_tech = replace(water_tech, str_detect(water_tech, "NA"), "Not identified")) %>%
+water_data <- water %>% 
+  st_as_sf(coords = c("lon_deg", "lat_deg"), remove = FALSE) %>%    # Convert to sf object
+  st_set_crs(st_crs(countries)) %>% # Set to same CRS
+  filter(install_year>=1970) %>% # remove few observations from before %>% 
+  filter(lon_deg < 1) %>% # remove 4 entries with errors in Nicaragua
+  mutate(water_tech = replace(water_tech, str_detect(water_tech, "Hand Pump"), "Hand Pump")) %>% 
   mutate(water_tech = replace(water_tech, str_detect(water_tech, "Mechanized Pump"), "Mechanized Pump"))
 
-p <- ggplot(central_paises) +
-  geom_sf(fill = "gray")+
-  geom_point(data = water, aes(x = lon_deg, y = lat_deg, color=water_tech),alpha=.5)+
-  scale_fill_manual(values = ghibli_pal, na.value = "lightgray") +
-  theme(axis.line = element_blank(),
-        plot.subtitle = element_text(face="bold", size=15),
-        plot.caption = element_text(face = "italic", size = 6, color = "grey"),
-        axis.text = element_blank(),
-        panel.grid = element_blank(),
-        legend.title = element_blank(),
-        panel.background = element_rect(fill = "transparent"),
-        legend.position = c(0.16, 0.19), 
-        #legend.title = element_text(size = 12),
-        #legend.text = element_text(size = 11),
-        text = element_text(family = "CMU Sans Serif"),
-        plot.title = element_text(size = 24))+
-  transition_manual(water_ca$install_year, cumulative = TRUE)
+water_data$water_tech[is.na(water_data$water_tech)] <- "Not identified"
 
 
+# Plot
 
-  labs(fill = "Primary system by state", 
-       title = "Water Transportation Systems",
-       subtitle = "How does water get from its source to the point of collection?",
-       caption = "Data: Water Point Data Exchange") +
-  theme(panel.background = element_rect(fill = "transparent"),
-        legend.position = c(0.16, 0.19), 
-        #legend.title = element_text(size = 12),
-        #legend.text = element_text(size = 11),
-        text = element_text(family = "CMU Sans Serif"),
-        plot.title = element_text(size = 24))
+pal <- wesanderson::wes_palette("GrandBudapest1")
 
-p
+p <- ggplot(countries) +
+  geom_sf(fill = "lightgray")+
+  geom_sf_label(aes(label = sovereignt), label.padding = unit(1, "mm"))+
+  geom_point(data = water_data, aes(x = lon_deg, y = lat_deg, color=water_tech),size=2, alpha=.5)+
+  scale_color_manual(values = pal)+
+  labs(title = 'Water systems in Central America: {current_frame}', 
+       caption  = "Data Source: Tidy Tuesday & Water Point Data Exchange | Plot by Rafael Rocha")+
+  theme_void()+
+  theme(
+      legend.title = element_blank(),
+      plot.title = element_text(family = "Lato", size = 22, face = "bold"),
+      legend.position = "bottom",
+      legend.text = element_text(size = 16),
+      plot.margin=unit(c(0,1,1,1),"cm")) +
+  transition_manual(install_year, cumulative = TRUE)
 
+# Refined animation specs
 
-+
-  transition_time(install_year)
+animate(p,duration=20 , 
+        start_pause=1,
+        end_pause = 30,
+        detail=3,
+        bg='LightSlateGray',
+        type='cairo',
+        renderer = gifski_renderer(),
+        width=600,
+        height=450
+)
 
-water_ca$install_year <- as.numeric(water_ca$install_year)
+# Save animation
 
-
-
-
-ggplot(gapminder, aes(gdpPercap, lifeExp, size = pop, colour = country)) +
-  geom_point(alpha = 0.7) +
-  scale_colour_manual(values = country_colors) +
-  scale_size(range = c(2, 12)) +
-  scale_x_log10() +
-  facet_wrap(~continent) +
-  theme(legend.position = 'none') +
-  labs(title = 'Year: {frame_time}', x = 'GDP per capita', y = 'life expectancy') +
-  transition_time(year)
-
-
+anim_save(filename = paste0("Water_Source_",Sys.Date(),".gif"),animation = last_animation())
