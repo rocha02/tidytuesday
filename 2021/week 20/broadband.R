@@ -67,6 +67,6 @@ g <- counties %>%
   labs(fill ="", title = "High Speed Broadband Availability in US", 
        subtitle = str_wrap("% of people per county with access to fixed terrestrial 
                            broadband at speeds of 25 Mbps/3 Mbps - 2017"),
-       caption = "Data Source: Tidy Tuesday & Microsoft.| Plot by Rafael Rocha")
+       caption = "Data Source: Tidy Tuesday & Microsoft | Plot by Rafael Rocha")
 
-ggsave(filename = "broadband_13.05.21.png", plot = last_plot(), width = 10, height = 6)
+ggsave(filename = "broadband_14.05.21.png", plot = last_plot(), width = 10, height = 6)
