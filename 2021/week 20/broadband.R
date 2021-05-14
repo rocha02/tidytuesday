@@ -39,7 +39,6 @@ counties <- get_urbn_map(map = "counties", sf = TRUE) %>%
 
 glimpse(counties)
 
-
 # plot
 
 g <- counties %>%
