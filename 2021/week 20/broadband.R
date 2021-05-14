@@ -4,6 +4,8 @@ library(skimr)
 library(janitor)
 library(urbnmapr)
 library(viridis)
+library(janitor)
+library(urbnmapr)
 
 # Get the Data
 
@@ -19,7 +21,7 @@ glimpse(broadband_zip)
 skim(broadband)
 skim(broadband_zip)
 
-# data cleaning 
+# data cleaning
 
 broadband <- broadband %>% 
   janitor::clean_names()
@@ -38,6 +40,7 @@ counties <- get_urbn_map(map = "counties", sf = TRUE) %>%
   mutate(county_fips = as.numeric(county_fips))
 
 glimpse(counties)
+
 
 # plot
 
