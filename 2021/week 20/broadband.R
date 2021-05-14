@@ -4,8 +4,6 @@ library(skimr)
 library(janitor)
 library(urbnmapr)
 library(viridis)
-library(janitor)
-library(urbnmapr)
 
 # Get the Data
 
@@ -47,9 +45,9 @@ glimpse(counties)
 g <- counties %>%
   left_join(broadband_data, by = "county_name") %>%
   ggplot() +
-  geom_sf(mapping = aes(fill = broadband_usage), color = "#b2b2b2", size = 0.01) +
+  geom_sf(mapping = aes(fill = broadband_availability_per_fcc), color = "#b2b2b2", size = 0.01) +
   coord_sf(datum = NA)+
-  scale_fill_viridis(option="plasma", trans = 'reverse', breaks = c(.09,.2,.4,.6,.8,1), 
+  scale_fill_viridis(option="plasma", breaks = c(.09,.2,.4,.6,.8,1), 
                      labels = c("> 9%", "20%", "40%","60%","80%","< 80%"))+
   theme_minimal(base_size = 12 ) +
   theme(plot.subtitle = element_text(family = "Lato",size = 12, hjust = 0.5),
