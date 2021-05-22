@@ -1,6 +1,5 @@
 library(ggplot2)
 library(tidyverse)
-library(skimr)
 library(janitor)
 library(urbnmapr)
 library(viridis)
@@ -16,8 +15,6 @@ broadband_zip <- tuesdata$broadband_zip
 
 glimpse(broadband)
 glimpse(broadband_zip)
-skim(broadband)
-skim(broadband_zip)
 
 # data cleaning
 

@@ -73,12 +73,12 @@ my_colors <- c("#2ca1db", "#de425b")
 
 p1 <- nonprofit_acad %>%
   filter(!is.na(gender)) %>% 
-  filter(annual_salary < 200000 & gender!= "Other or prefer not to answer") %>% 
+  filter(annual_salary < 150000 & gender!= "Other or prefer not to answer") %>% 
   ggplot(aes(x= annual_salary, y= fct_reorder(gender, annual_salary), fill=nonp_acad)) + 
   geom_violin(draw_quantiles = 0.5, trim = TRUE, position="dodge", 
               alpha=0.7)+
-  scale_x_continuous(breaks=c(0, 50000, 100000, 150000, 200000), 
-                        labels=c("0", "50K", "100K", "150K", "200K"), limits=c(-1000,200000))+
+  scale_x_continuous(breaks=c(0, 50000, 100000, 150000), 
+                        labels=c("0", "50K", "100K", "150K"), limits=c(-1000,150000))+
   labs(title="Gender",
        x = '', 
        y = '')+
@@ -90,12 +90,12 @@ p1 <- nonprofit_acad %>%
 
 p2 <- nonprofit_acad %>%
   filter(!is.na(race)) %>%
-  filter(annual_salary < 200000) %>% 
+  filter(annual_salary < 150000) %>% 
   ggplot(aes(x=annual_salary, y= fct_reorder(race, annual_salary), fill=nonp_acad)) + 
   geom_violin(draw_quantiles = 0.5, trim = TRUE, position="dodge", 
               alpha=0.7)+
-  scale_x_continuous(breaks=c(0, 50000, 100000, 150000, 200000), 
-                     labels=c("0", "50K", "100K", "150K", "200K"), limits=c(-1000,200000))+
+  scale_x_continuous(breaks=c(0, 50000, 100000, 150000), 
+                     labels=c("0", "50K", "100K", "150K"), limits=c(-1000,150000))+
   labs(title = "Race",
        x = '', 
        y = '')+
@@ -108,12 +108,12 @@ p2 <- nonprofit_acad %>%
 
 p3 <- nonprofit_acad %>%
   filter(!is.na(highest_level_of_education_completed)) %>% 
-  filter(annual_salary < 200000 & highest_level_of_education_completed != "Some college") %>% 
+  filter(annual_salary < 150000 & highest_level_of_education_completed != "Some college") %>% 
   ggplot(aes(x=annual_salary, y= fct_reorder(highest_level_of_education_completed, annual_salary), fill=nonp_acad)) + 
   geom_violin(draw_quantiles = 0.5, trim = TRUE, position="dodge", 
               alpha=0.7)+
-  scale_x_continuous(breaks=c(0, 50000, 100000, 150000, 200000), 
-                     labels=c("0", "50K", "100K", "150K", "200K"), limits=c(-1000,200000))+
+  scale_x_continuous(breaks=c(0, 50000, 100000, 150000), 
+                     labels=c("0", "50K", "100K", "150K"), limits=c(-1000,150000))+
   labs(title ="Level of Education",
        x = '', 
        y = '')+
@@ -130,8 +130,8 @@ p4 <- nonprofit_acad %>%
   ggplot(aes(x=annual_salary, y= fct_reorder(years_of_experience_in_field, annual_salary), fill=nonp_acad)) + 
   geom_violin(draw_quantiles = 0.5, trim = TRUE, position="dodge", 
               alpha=0.7)+
-  scale_x_continuous(breaks=c(0, 50000, 100000, 150000, 200000), 
-                     labels=c("0", "50K", "100K", "150K", "200K"), limits=c(-1000,200000))+
+  scale_x_continuous(breaks=c(0, 50000, 100000, 150000), 
+                     labels=c("0", "50K", "100K", "150K"), limits=c(-1000,150000))+
   labs(title ="Years of Experience in Field",
        x = '', 
        y = '')+
